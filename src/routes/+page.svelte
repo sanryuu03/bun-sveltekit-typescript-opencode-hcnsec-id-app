@@ -4,16 +4,13 @@
 		ArrowUpRight,
 		BookOpen,
 		Cat,
-		ExternalLink,
 		FileCode2,
 		KeyRound,
 		Languages,
-		Moon,
+		Monitor,
 		Package,
 		Shield,
-		Sun,
 		Terminal,
-		Monitor,
 		Link as LinkIcon
 	} from 'lucide-svelte';
 	import { cn } from '#lib/utils';
@@ -24,36 +21,7 @@
 	import { Alert, AlertDescription, AlertTitle } from '#lib/components/ui/alert';
 	import Step from '#lib/components/step.svelte';
 	import CodeBlock from '#lib/components/code-block.svelte';
-
-	const originalUrl = 'https://hcnote.cn/2026/07/22/13230.html';
-
-	let theme = $state<'light' | 'dark'>('light');
-	let activeSection = $state('');
-
-	onMount(() => {
-		theme = document.documentElement.classList.contains('dark') ? 'dark' : 'light';
-	});
-
-	function toggleTheme() {
-		theme = theme === 'dark' ? 'light' : 'dark';
-		document.documentElement.classList.toggle('dark', theme === 'dark');
-		localStorage.setItem('theme', theme);
-	}
-
-	function scrollToId(id: string) {
-		document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-	}
-
-	// --- salin kode ---
-	let copied = $state('');
-
-	function copy(text: string, id: string) {
-		navigator.clipboard?.writeText(text);
-		copied = id;
-		setTimeout(() => {
-			if (copied === id) copied = '';
-		}, 1600);
-	}
+	import { ORIGINAL_URL } from '#lib/constants';
 
 	const toc = [
 		{ id: 'pengantar', label: 'Pengantar' },
@@ -65,6 +33,32 @@
 		{ id: 'versi-desktop', label: 'Versi Desktop Windows' },
 		{ id: 'note', label: 'Catatan Terjemahan' }
 	];
+
+	let activeSection = $state('');
+
+	// --- scrollspy: tandai bagian aktif saat menggulir ---
+	onMount(() => {
+		const els = toc
+			.map((t) => document.getElementById(t.id))
+			.filter((el): el is HTMLElement => !!el);
+
+		const observer = new IntersectionObserver(
+			(entries) => {
+				const visible = entries
+					.filter((e) => e.isIntersecting)
+					.sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
+				const current = visible[0]?.target.id ?? activeSection;
+				if (current !== activeSection) activeSection = current;
+			},
+			{ rootMargin: '-20% 0px -70% 0px', threshold: 0 }
+		);
+		els.forEach((el) => observer.observe(el));
+		return () => observer.disconnect();
+	});
+
+	function scrollToId(id: string) {
+		document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+	}
 
 	function isActive(id: string) {
 		return activeSection === id;
@@ -85,52 +79,6 @@
 		content="Terjemahan Bahasa Indonesia dari artikel hcnote.cn: cara menghubungkan OpenCode ke model pihak ketiga melalui API relay gratis + CC Switch, tanpa pakai model default."
 	/>
 </svelte:head>
-
-<!-- ======================= HEADER ======================= -->
-<header class="sticky top-0 z-40 w-full border-b bg-background/90 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-	<div class="mx-auto flex h-14 max-w-5xl items-center justify-between gap-3 px-4 sm:px-6">
-		<div class="flex items-center gap-2.5">
-			<div
-				class="flex size-8 items-center justify-center rounded-md bg-primary text-primary-foreground"
-			>
-				<Cat class="size-4.5" />
-			</div>
-			<a
-				href="#top"
-				class="flex items-center gap-2 text-sm font-semibold tracking-tight"
-			>
-				<span class="hidden sm:inline">Catatan</span>
-				<span class="rounded-sm bg-accent px-1.5 py-0.5 text-xs font-medium text-accent-foreground">
-					OpenCode
-				</span>
-			</a>
-		</div>
-
-		<div class="flex items-center gap-2">
-			<Badge variant="outline" class="hidden md:inline-flex gap-1 text-[11px]">
-				<Languages class="size-3" /> Terjemahan ID
-			</Badge>
-			<Button
-				variant="outline"
-				size="sm"
-				href={originalUrl}
-				target="_blank"
-				rel="noopener noreferrer"
-				class="gap-1.5 text-xs"
-			>
-				Link Asli
-				<ExternalLink class="size-3.5" />
-			</Button>
-			<Button variant="ghost" size="icon-sm" onclick={toggleTheme} aria-label="Ganti tema">
-				{#if theme === 'dark'}
-					<Moon class="size-4" />
-				{:else}
-					<Sun class="size-4" />
-				{/if}
-			</Button>
-		</div>
-	</div>
-</header>
 
 <!-- ======================= HERO ======================= -->
 <section id="top" class="mx-auto w-full max-w-5xl px-4 pt-10 sm:px-6 sm:pt-14">
@@ -187,7 +135,7 @@
 						<span class="font-medium text-foreground">幻城云笔记 (Hcnote)</span>. Semua hak
 						atas materi asli tetap milik penulis dan situs aslinya.
 					</p>
-					<Button href={originalUrl} target="_blank" rel="noopener noreferrer" size="sm">
+					<Button href={ORIGINAL_URL} target="_blank" rel="noopener noreferrer" size="sm">
 						Kunjungi Artikel Asli
 						<ArrowUpRight class="size-4" />
 					</Button>
@@ -343,7 +291,7 @@
 								Buka Konsol API
 								<ArrowUpRight class="size-4" />
 							</Button>
-							<Button href={originalUrl} target="_blank" rel="noopener noreferrer" size="sm" variant="outline">
+							<Button href={ORIGINAL_URL} target="_blank" rel="noopener noreferrer" size="sm" variant="outline">
 								Doc versi asli
 							</Button>
 						</div>
@@ -547,7 +495,7 @@
 				</div>
 				<p class="text-sm text-muted-foreground">
 					💡 Untuk detail visual tiap langkah (letak tombol, urutan klik), silakan buka
-					<a href={originalUrl} target="_blank" rel="noopener noreferrer" class="font-medium text-primary hover:underline">artikel aslinya</a>
+					<a href={ORIGINAL_URL} target="_blank" rel="noopener noreferrer" class="font-medium text-primary hover:underline">artikel aslinya</a>
 					yang memuat seluruh tangkapan layar (gambar 1–21).
 				</p>
 			</section>
@@ -590,43 +538,18 @@
 						<span>Artikel asli (untuk kredit &amp; sumber):</span>
 					</p>
 					<a
-						href={originalUrl}
+						href={ORIGINAL_URL}
 						target="_blank"
 						rel="noopener noreferrer"
 						class="break-all font-medium text-primary hover:underline"
 					>
-						{originalUrl}
+						{ORIGINAL_URL}
 					</a>
 				</div>
 			</section>
 		</article>
 	</div>
 </div>
-
-<!-- ======================= FOOTER ======================= -->
-<footer class="border-t">
-	<div class="mx-auto flex max-w-5xl flex-col gap-4 px-4 py-10 sm:flex-row sm:items-center sm:justify-between sm:px-6">
-		<div class="flex items-center gap-2.5">
-			<div class="flex size-8 items-center justify-center rounded-md bg-primary text-primary-foreground">
-				<Cat class="size-4.5" />
-			</div>
-			<div class="text-sm">
-				<p class="font-semibold">Catatan OpenCode</p>
-				<p class="text-muted-foreground">
-					Dibuat dengan SvelteKit + shadcn-svelte
-				</p>
-			</div>
-		</div>
-		<Button href={originalUrl} target="_blank" rel="noopener noreferrer" variant="outline" size="sm">
-			<ExternalLink class="size-4" />
-			Sumber: hcnote.cn
-		</Button>
-	</div>
-	<p class="border-t px-4 py-4 text-center text-xs text-muted-foreground">
-		© {new Date().getFullYear()} Terjemahan bebas oleh pengguna · Materi asli © Viero · 幻城云笔记 (Hcnote) ·
-		Dibagikan untuk edukasi dengan kredit ke situs asli.
-	</p>
-</footer>
 
 <style>
 	:global(html) {

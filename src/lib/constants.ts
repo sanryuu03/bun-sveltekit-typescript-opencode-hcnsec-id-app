@@ -1,0 +1,1 @@
+export const ORIGINAL_URL = 'https://hcnote.cn/2026/07/22/13230.html';
