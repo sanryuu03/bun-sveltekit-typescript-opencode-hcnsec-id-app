@@ -60,6 +60,10 @@ You can preview the production build with `npm run preview`.
 Project ini memakai `@sveltejs/adapter-cloudflare` + Wrangler. Output SSR ada di
 `.svelte-kit/cloudflare/_worker.js`.
 
+> 📘 **Referensi lengkap:** [docs/CLOUDFLARE_DEPLOY_TROUBLESHOOTING.md](./docs/CLOUDFLARE_DEPLOY_TROUBLESHOOTING.md)
+> berisi root cause error `worker-configuration.d.ts`, langkah investigasi,
+> checklist verifikasi, dan template untuk project lain.
+
 ```sh
 bun run check          # 0 error
 bun run build          # > Using @sveltejs/adapter-cloudflare ✔ done
