@@ -7,7 +7,7 @@
 
 	interface Props {
 		originalUrl: string;
-		activePage?: '/' | '/desktop';
+		activePage?: '/' | '/desktop' | '/bergambar';
 		children?: Snippet;
 	}
 
@@ -56,6 +56,12 @@
 					class="rounded-md px-2.5 py-1.5 text-sm transition-colors {isPage('/desktop') ? 'bg-muted text-foreground font-medium' : 'text-muted-foreground hover:text-foreground'}"
 				>
 					Versi Desktop
+				</a>
+				<a
+					href="/bergambar"
+					class="rounded-md px-2.5 py-1.5 text-sm transition-colors {isPage('/bergambar') ? 'bg-muted text-foreground font-medium' : 'text-muted-foreground hover:text-foreground'}"
+				>
+					Bergambar
 				</a>
 			</nav>
 		</div>

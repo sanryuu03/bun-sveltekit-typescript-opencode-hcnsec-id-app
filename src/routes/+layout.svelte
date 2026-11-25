@@ -9,8 +9,12 @@
 
 	let { children }: LayoutProps = $props();
 
-	let activePage = $derived<'/' | '/desktop'>(
-		page.url.pathname === '/desktop' ? '/desktop' : '/'
+	let activePage = $derived<'/' | '/desktop' | '/bergambar'>(
+		page.url.pathname === '/desktop'
+			? '/desktop'
+			: page.url.pathname === '/bergambar'
+				? '/bergambar'
+				: '/'
 	);
 </script>
 
