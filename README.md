@@ -54,3 +54,40 @@ npm run build
 You can preview the production build with `npm run preview`.
 
 > To deploy your app, you may need to install an [adapter](https://svelte.dev/docs/kit/adapters) for your target environment.
+
+## Deploy ke Cloudflare Workers
+
+Project ini memakai `@sveltejs/adapter-cloudflare` + Wrangler. Output SSR ada di
+`.svelte-kit/cloudflare/_worker.js`.
+
+```sh
+bun run check          # 0 error
+bun run build          # > Using @sveltejs/adapter-cloudflare ✔ done
+bun run cf-typegen     # regenerate worker-configuration.d.ts
+bunx wrangler deploy --dry-run
+bun run deploy         # build + deploy
+```
+
+### Kenapa dulu gagal
+
+`wrangler.jsonc` belum ada di repo, jadi `npx wrangler deploy` menjalankan
+auto-config `sv add`. Auto-config menimpa `build` menjadi
+`wrangler types --check && vite build`, lalu gagal karena
+`worker-configuration.d.ts` tidak pernah dibuat:
+
+```text
+✘ [ERROR] Types file not found at worker-configuration.d.ts
+```
+
+Perbaikan yang sudah diterapkan (sama seperti pola `spill-barang-app`):
+
+- `@sveltejs/adapter-auto` → `@sveltejs/adapter-cloudflare`
+- `wrangler.jsonc` + `worker-configuration.d.ts` ikut di-commit — auto-config
+  Wrangler dilewati, `build` tidak akan diubah diam-diam
+- `compatibility_flags: ["nodejs_compat"]` untuk modul Node internal SvelteKit
+- `packageManager: "bun@1.4.2"` supaya Cloudflare memakai bun yang mendukung
+  `lockfileVersion: 2`
+
+Di dashboard Cloudflare: **Build command** = `bun run build`, **Deploy command**
+= `npx wrangler deploy` (atau kosongkan jika memakai Pages), **Build output
+directory** = `.svelte-kit/cloudflare`.
